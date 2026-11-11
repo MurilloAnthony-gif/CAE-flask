@@ -1,0 +1,48 @@
+{% extends "layout.html" %}
+{% block titulo %}Cargos - CAE{% endblock %}
+{% block contenido %}
+<h2>Cargos</h2>
+
+<h3>Nuevo cargo</h3>
+<!-- Campos esperados por POST /cargos/crear: nombre, descripcion, salario_base -->
+<form method="POST" action="{{ url_for('cargos.crear') }}">
+    <p>Nombre: <input type="text" name="nombre" required></p>
+    <p>Descripción: <input type="text" name="descripcion"></p>
+    <p>Salario base ($): <input type="number" step="0.01" min="0" name="salario_base" value="0.00" required></p>
+    <button type="submit">Guardar</button>
+</form>
+
+<h3>Listado</h3>
+<!-- Variable enviada: cargos (id, nombre, descripcion, salario_base, activo) -->
+<table border="1" cellpadding="5">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Descripción</th>
+            <th>Salario Base</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for c in cargos %}
+        <tr>
+            <td>{{ c.id }}</td>
+            <td>{{ c.nombre }}</td>
+            <td>{{ c.descripcion or '' }}</td>
+            <td>${{ "%.2f"|format(c.salario_base) }}</td>
+            <td>{{ 'Activo' if c.activo else 'Inactivo' }}</td>
+            <td>
+                <a href="{{ url_for('cargos.editar', id=c.id) }}">Editar</a>
+                <form method="POST" action="{{ url_for('cargos.eliminar', id=c.id) }}" style="display:inline;">
+                    <button type="submit" onclick="return confirm('¿Eliminar cargo?');">Eliminar</button>
+                </form>
+            </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6">No hay cargos registrados.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

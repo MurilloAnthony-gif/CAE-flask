@@ -1,0 +1,108 @@
+{% extends "layout.html" %}
+{% block titulo %}Reportes de Asistencia - CAE{% endblock %}
+{% block contenido %}
+<h2>Reportes de Asistencia, Atrasos y Faltas</h2>
+
+<!-- Filtros GET /reportes: fecha_inicio, fecha_fin, empleado_id, departamento_id, solo_atrasos -->
+<form method="GET" action="{{ url_for('reportes.index') }}">
+    <p>
+        Desde: <input type="date" name="fecha_inicio" value="{{ filtros.fecha_inicio }}">
+        Hasta: <input type="date" name="fecha_fin" value="{{ filtros.fecha_fin }}">
+        Departamento:
+        <select name="departamento_id">
+            <option value="">-- Todos --</option>
+            {% for d in departamentos %}
+                <option value="{{ d.id }}" {% if filtros.departamento_id == (d.id|string) %}selected{% endif %}>{{ d.nombre }}</option>
+            {% endfor %}
+        </select>
+        Empleado:
+        <select name="empleado_id">
+            <option value="">-- Todos --</option>
+            {% for e in empleados %}
+                <option value="{{ e.id }}" {% if filtros.empleado_id == (e.id|string) %}selected{% endif %}>{{ e.apellidos }} {{ e.nombres }}</option>
+            {% endfor %}
+        </select>
+        <label>
+            <input type="checkbox" name="solo_atrasos" value="1" {% if filtros.solo_atrasos %}checked{% endif %}>
+            Solo atrasos
+        </label>
+        <button type="submit">Filtrar</button>
+    </p>
+</form>
+
+<h3>Resumen del período</h3>
+<!-- Variable enviada: resumen -->
+<ul>
+    <li>Total asistencias registradas: <b>{{ resumen.total_registros }}</b></li>
+    <li>Total atrasos: <b>{{ resumen.total_atrasos }}</b> ({{ resumen.total_minutos_atraso }} minutos acumulados)</li>
+    <li>Ajustes manuales de admin: <b>{{ resumen.total_ajustes }}</b></li>
+    <li>Faltas detectadas (días laborables sin marca): <b>{{ resumen.total_faltas }}</b></li>
+</ul>
+
+<h3>Detalle de Asistencias</h3>
+<table border="1" cellpadding="5">
+    <thead>
+        <tr>
+            <th>Fecha</th>
+            <th>Cédula</th>
+            <th>Empleado</th>
+            <th>Departamento</th>
+            <th>Cargo</th>
+            <th>Entrada</th>
+            <th>Salida</th>
+            <th>Estado</th>
+            <th>Min. Atraso</th>
+            <th>Método</th>
+            <th>Observación</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for r in registros %}
+        <tr>
+            <td>{{ r.fecha }}</td>
+            <td>{{ r.cedula }}</td>
+            <td>{{ r.apellidos }} {{ r.nombres }}</td>
+            <td>{{ r.departamento_nombre }}</td>
+            <td>{{ r.cargo_nombre }}</td>
+            <td>{{ r.hora_entrada or '-' }}</td>
+            <td>{{ r.hora_salida or '-' }}</td>
+            <td>{{ r.estado }}</td>
+            <td>{{ r.minutos_atraso }}</td>
+            <td>{{ r.metodo }}</td>
+            <td>
+                {{ r.observacion or '' }}
+                {% if r.admin_nombre %}<small>(por {{ r.admin_nombre }})</small>{% endif %}
+            </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="11">No hay registros en este rango.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h3>Faltas detectadas en el rango</h3>
+<table border="1" cellpadding="5">
+    <thead>
+        <tr>
+            <th>Fecha</th>
+            <th>Cédula</th>
+            <th>Empleado</th>
+            <th>Departamento</th>
+            <th>Horario asignado</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for f in faltas %}
+        <tr>
+            <td>{{ f.fecha }}</td>
+            <td>{{ f.cedula }}</td>
+            <td>{{ f.empleado }}</td>
+            <td>{{ f.departamento }}</td>
+            <td>{{ f.horario }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5">No se detectaron faltas en el período seleccionado.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

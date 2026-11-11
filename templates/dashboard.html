@@ -1,0 +1,11 @@
+{% extends "layout.html" %}
+{% block titulo %}Dashboard - CAE{% endblock %}
+{% block contenido %}
+<h2>Dashboard</h2>
+<!-- Variables que envía el backend: total_empleados, asistencias_hoy, atrasos_hoy -->
+<ul>
+    <li>Empleados activos: {{ total_empleados }}</li>
+    <li>Asistencias de hoy: {{ asistencias_hoy }}</li>
+    <li>Atrasos de hoy: {{ atrasos_hoy }}</li>
+</ul>
+{% endblock %}

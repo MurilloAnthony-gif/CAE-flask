@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+{% block titulo %}Reloj Marcador - CAE{% endblock %}
+{% block contenido %}
+<h2>Reloj Marcador de Asistencia</h2>
+<p>Hora actual del servidor: <b>{{ ahora_servidor }}</b> (la hora real se toma de MySQL al marcar).</p>
+
+<!-- Campos esperados por POST /marcar: cedula, pin, tipo (ENTRADA | SALIDA) -->
+<form method="POST" action="{{ url_for('marcador.marcar') }}">
+    <p>Cédula: <input type="text" name="cedula" maxlength="10" required autofocus></p>
+    <p>PIN personal: <input type="password" name="pin" maxlength="10" required></p>
+    <p>
+        <button type="submit" name="tipo" value="ENTRADA">Marcar ENTRADA</button>
+        <button type="submit" name="tipo" value="SALIDA">Marcar SALIDA</button>
+    </p>
+</form>
+{% endblock %}

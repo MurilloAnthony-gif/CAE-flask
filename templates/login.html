@@ -1,0 +1,11 @@
+{% extends "layout.html" %}
+{% block titulo %}Iniciar sesión - CAE{% endblock %}
+{% block contenido %}
+<h2>Iniciar sesión</h2>
+<!-- El backend espera los campos: username, password (POST a /login) -->
+<form method="POST" action="{{ url_for('auth.login') }}">
+    <p>Usuario: <input type="text" name="username" required autofocus></p>
+    <p>Contraseña: <input type="password" name="password" required></p>
+    <button type="submit">Entrar</button>
+</form>
+{% endblock %}

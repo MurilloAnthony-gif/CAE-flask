@@ -1,0 +1,51 @@
+{% extends "layout.html" %}
+{% block titulo %}Editar Empleado - CAE{% endblock %}
+{% block contenido %}
+<h2>Editar Empleado #{{ empleado.id }}</h2>
+
+<!-- Campos esperados por POST /empleados/editar/<id>:
+     cedula, nombres, apellidos, email, telefono, fecha_ingreso, pin (opcional),
+     departamento_id, cargo_id, horario_id, activo -->
+<form method="POST" action="{{ url_for('empleados.editar', id=empleado.id) }}">
+    <p>Cédula: <input type="text" name="cedula" maxlength="10" value="{{ empleado.cedula }}" required></p>
+    <p>Nombres: <input type="text" name="nombres" value="{{ empleado.nombres }}" required></p>
+    <p>Apellidos: <input type="text" name="apellidos" value="{{ empleado.apellidos }}" required></p>
+    <p>Email: <input type="email" name="email" value="{{ empleado.email or '' }}"></p>
+    <p>Teléfono: <input type="text" name="telefono" maxlength="15" value="{{ empleado.telefono or '' }}"></p>
+    <p>Fecha de ingreso: <input type="date" name="fecha_ingreso" value="{{ empleado.fecha_ingreso }}" required></p>
+    <p>Nuevo PIN (dejar en blanco para mantener el actual):
+        <input type="password" name="pin" maxlength="10">
+    </p>
+    <p>Departamento:
+        <select name="departamento_id" required>
+            {% for d in departamentos %}
+                <option value="{{ d.id }}" {% if d.id == empleado.departamento_id %}selected{% endif %}>{{ d.nombre }}</option>
+            {% endfor %}
+        </select>
+    </p>
+    <p>Cargo:
+        <select name="cargo_id" required>
+            {% for c in cargos %}
+                <option value="{{ c.id }}" {% if c.id == empleado.cargo_id %}selected{% endif %}>{{ c.nombre }}</option>
+            {% endfor %}
+        </select>
+    </p>
+    <p>Horario:
+        <select name="horario_id" required>
+            {% for h in horarios %}
+                <option value="{{ h.id }}" {% if h.id == empleado.horario_id %}selected{% endif %}>
+                    {{ h.nombre }} ({{ h.hora_entrada }} - {{ h.hora_salida }})
+                </option>
+            {% endfor %}
+        </select>
+    </p>
+    <p>
+        <label>
+            <input type="checkbox" name="activo" value="1" {% if empleado.activo %}checked{% endif %}>
+            Activo
+        </label>
+    </p>
+    <button type="submit">Actualizar</button>
+    <a href="{{ url_for('empleados.index') }}">Cancelar</a>
+</form>
+{% endblock %}

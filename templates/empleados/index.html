@@ -1,0 +1,84 @@
+{% extends "layout.html" %}
+{% block titulo %}Empleados - CAE{% endblock %}
+{% block contenido %}
+<h2>Empleados</h2>
+
+<h3>Registrar empleado</h3>
+<!-- Campos esperados por POST /empleados/crear:
+     cedula, nombres, apellidos, email, telefono, fecha_ingreso, pin,
+     departamento_id, cargo_id, horario_id -->
+<form method="POST" action="{{ url_for('empleados.crear') }}">
+    <p>Cédula: <input type="text" name="cedula" maxlength="10" required></p>
+    <p>Nombres: <input type="text" name="nombres" required></p>
+    <p>Apellidos: <input type="text" name="apellidos" required></p>
+    <p>Email: <input type="email" name="email"></p>
+    <p>Teléfono: <input type="text" name="telefono" maxlength="15"></p>
+    <p>Fecha de ingreso: <input type="date" name="fecha_ingreso" required></p>
+    <p>PIN para el marcador (4-6 dígitos): <input type="password" name="pin" maxlength="10" placeholder="Ej. 1234"></p>
+    <p>Departamento:
+        <select name="departamento_id" required>
+            <option value="">-- Seleccione --</option>
+            {% for d in departamentos %}
+                <option value="{{ d.id }}">{{ d.nombre }}</option>
+            {% endfor %}
+        </select>
+    </p>
+    <p>Cargo:
+        <select name="cargo_id" required>
+            <option value="">-- Seleccione --</option>
+            {% for c in cargos %}
+                <option value="{{ c.id }}">{{ c.nombre }}</option>
+            {% endfor %}
+        </select>
+    </p>
+    <p>Horario:
+        <select name="horario_id" required>
+            <option value="">-- Seleccione --</option>
+            {% for h in horarios %}
+                <option value="{{ h.id }}">{{ h.nombre }} ({{ h.hora_entrada }} - {{ h.hora_salida }})</option>
+            {% endfor %}
+        </select>
+    </p>
+    <button type="submit">Guardar empleado</button>
+</form>
+
+<h3>Listado</h3>
+<!-- Variable enviada: empleados -->
+<table border="1" cellpadding="5">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Cédula</th>
+            <th>Apellidos y Nombres</th>
+            <th>Departamento</th>
+            <th>Cargo</th>
+            <th>Horario</th>
+            <th>PIN</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for e in empleados %}
+        <tr>
+            <td>{{ e.id }}</td>
+            <td>{{ e.cedula }}</td>
+            <td>{{ e.apellidos }} {{ e.nombres }}</td>
+            <td>{{ e.departamento_nombre }}</td>
+            <td>{{ e.cargo_nombre }}</td>
+            <td>{{ e.horario_nombre }} ({{ e.hora_entrada }} - {{ e.hora_salida }})</td>
+            <td>{{ 'Configurado' if e.pin_hash else 'Sin PIN' }}</td>
+            <td>{{ 'Activo' if e.activo else 'Inactivo' }}</td>
+            <td>
+                <a href="{{ url_for('empleados.editar', id=e.id) }}">Editar</a>
+                <form method="POST" action="{{ url_for('empleados.eliminar', id=e.id) }}" style="display:inline;">
+                    <button type="submit" onclick="return confirm('¿Eliminar empleado?');">Eliminar</button>
+                </form>
+            </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="9">No hay empleados registrados.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

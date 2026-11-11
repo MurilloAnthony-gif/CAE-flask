@@ -1,0 +1,73 @@
+{% extends "layout.html" %}
+{% block titulo %}Asistencias y Ajustes - CAE{% endblock %}
+{% block contenido %}
+<h2>Asistencias y Ajustes Administrativos</h2>
+
+<h3>Registrar / corregir asistencia manualmente (Ajuste)</h3>
+<p><i>Uso exclusivo para correcciones justificadas. Queda registrado con método AJUSTE y el usuario administrador que lo realizó.</i></p>
+<!-- Campos esperados por POST /asistencias/ajuste:
+     empleado_id, fecha, hora_entrada, hora_salida (opcional), observacion (obligatoria) -->
+<form method="POST" action="{{ url_for('asistencias.crear_ajuste') }}">
+    <p>Empleado:
+        <select name="empleado_id" required>
+            <option value="">-- Seleccione --</option>
+            {% for e in empleados %}
+                <option value="{{ e.id }}">{{ e.apellidos }} {{ e.nombres }} ({{ e.cedula }})</option>
+            {% endfor %}
+        </select>
+    </p>
+    <p>Fecha: <input type="date" name="fecha" required></p>
+    <p>Hora de entrada: <input type="time" name="hora_entrada" required></p>
+    <p>Hora de salida (opcional): <input type="time" name="hora_salida"></p>
+    <p>Motivo / Observación (obligatorio):
+        <input type="text" name="observacion" size="50" placeholder="Ej. Olvidó marcar / corte de energía" required>
+    </p>
+    <button type="submit">Guardar ajuste</button>
+</form>
+
+<h3>Últimos registros de asistencia</h3>
+<!-- Variable enviada: asistencias -->
+<table border="1" cellpadding="5">
+    <thead>
+        <tr>
+            <th>Fecha</th>
+            <th>Cédula</th>
+            <th>Empleado</th>
+            <th>Departamento</th>
+            <th>Entrada</th>
+            <th>Salida</th>
+            <th>Estado</th>
+            <th>Atraso (min)</th>
+            <th>Método</th>
+            <th>Observación / Admin</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for a in asistencias %}
+        <tr>
+            <td>{{ a.fecha }}</td>
+            <td>{{ a.cedula }}</td>
+            <td>{{ a.apellidos }} {{ a.nombres }}</td>
+            <td>{{ a.departamento_nombre }}</td>
+            <td>{{ a.hora_entrada or '-' }}</td>
+            <td>{{ a.hora_salida or '-' }}</td>
+            <td>{{ a.estado or '-' }}</td>
+            <td>{{ a.minutos_atraso }}</td>
+            <td>{{ a.metodo }}</td>
+            <td>
+                {{ a.observacion or '' }}
+                {% if a.admin_nombre %}<small>(por {{ a.admin_nombre }})</small>{% endif %}
+            </td>
+            <td>
+                <form method="POST" action="{{ url_for('asistencias.eliminar', id=a.id) }}" style="display:inline;">
+                    <button type="submit" onclick="return confirm('¿Eliminar registro?');">Eliminar</button>
+                </form>
+            </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="11">No hay asistencias registradas.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

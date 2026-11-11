@@ -1,0 +1,20 @@
+{% extends "layout.html" %}
+{% block titulo %}Editar Cargo - CAE{% endblock %}
+{% block contenido %}
+<h2>Editar Cargo #{{ cargo.id }}</h2>
+
+<!-- Campos esperados por POST /cargos/editar/<id>: nombre, descripcion, salario_base, activo -->
+<form method="POST" action="{{ url_for('cargos.editar', id=cargo.id) }}">
+    <p>Nombre: <input type="text" name="nombre" value="{{ cargo.nombre }}" required></p>
+    <p>Descripción: <input type="text" name="descripcion" value="{{ cargo.descripcion or '' }}"></p>
+    <p>Salario base ($): <input type="number" step="0.01" min="0" name="salario_base" value="{{ cargo.salario_base }}" required></p>
+    <p>
+        <label>
+            <input type="checkbox" name="activo" value="1" {% if cargo.activo %}checked{% endif %}>
+            Activo
+        </label>
+    </p>
+    <button type="submit">Actualizar</button>
+    <a href="{{ url_for('cargos.index') }}">Cancelar</a>
+</form>
+{% endblock %}

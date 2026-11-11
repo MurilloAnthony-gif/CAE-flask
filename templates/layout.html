@@ -1,0 +1,37 @@
+<!-- Plantilla base TEMPORAL (sin estilos). El frontend la reemplaza. -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block titulo %}CAE{% endblock %}</title>
+</head>
+<body>
+    <nav>
+        <b>CAE</b> |
+        <a href="{{ url_for('marcador.marcar') }}">Reloj Marcador (PIN)</a>
+        {% if session.usuario_id %}
+        | <a href="{{ url_for('main.dashboard') }}">Dashboard</a>
+        | <a href="{{ url_for('empleados.index') }}">Empleados</a>
+        | <a href="{{ url_for('departamentos.index') }}">Departamentos</a>
+        | <a href="{{ url_for('cargos.index') }}">Cargos</a>
+        | <a href="{{ url_for('horarios.index') }}">Horarios</a>
+        | <a href="{{ url_for('asistencias.index') }}">Asistencias / Ajustes</a>
+        | <a href="{{ url_for('reportes.index') }}">Reportes</a>
+        | {{ session.usuario_nombre }} ({{ session.usuario_rol }})
+        | <a href="{{ url_for('auth.logout') }}">Cerrar sesión</a>
+        {% else %}
+        | <a href="{{ url_for('auth.login') }}">Login Admin</a>
+        {% endif %}
+    </nav>
+    <hr>
+
+    {# Mensajes flash: categoría = success | danger | warning | info #}
+    {% with mensajes = get_flashed_messages(with_categories=true) %}
+        {% for categoria, mensaje in mensajes %}
+            <p><b>[{{ categoria|upper }}]</b> {{ mensaje }}</p>
+        {% endfor %}
+    {% endwith %}
+
+    {% block contenido %}{% endblock %}
+</body>
+</html>
