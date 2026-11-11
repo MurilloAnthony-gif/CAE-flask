@@ -8,6 +8,22 @@ from db import mysql
 marcador_bp = Blueprint("marcador", __name__)
 
 
+def _formatear_hora(val):
+    if val is None:
+        return ""
+    if isinstance(val, timedelta):
+        tot = int(val.total_seconds())
+        h = tot // 3600
+        m = (tot % 3600) // 60
+        return f"{h:02d}:{m:02d}"
+    if hasattr(val, "strftime"):
+        return val.strftime("%H:%M")
+    partes = str(val).split(":")
+    if len(partes) >= 2:
+        return f"{int(partes[0]):02d}:{int(partes[1]):02d}"
+    return str(val)
+
+
 def _a_timedelta(valor_hora):
     """Convierte un valor TIME de MySQL (timedelta o time o str) a timedelta."""
     if isinstance(valor_hora, timedelta):
@@ -88,7 +104,7 @@ def marcar():
             if asistencia and asistencia["hora_entrada"]:
                 cur.close()
                 flash(
-                    f"{nombre_completo}: ya registraste tu entrada hoy a las {asistencia['hora_entrada']}",
+                    f"{nombre_completo}: ya registraste tu entrada hoy a las {_formatear_hora(asistencia['hora_entrada'])}",
                     "warning",
                 )
                 return redirect(url_for("marcador.marcar"))
@@ -110,7 +126,7 @@ def marcar():
 
             detalle = f"Atraso: {minutos_atraso} min" if estado == "ATRASO" else "Puntual"
             flash(
-                f"Entrada registrada — {nombre_completo} a las {hora_actual} ({detalle})",
+                f"Entrada registrada — {nombre_completo} a las {_formatear_hora(hora_actual)} ({detalle})",
                 "success" if estado == "PUNTUAL" else "warning",
             )
             return redirect(url_for("marcador.marcar"))
@@ -127,7 +143,7 @@ def marcar():
             if asistencia["hora_salida"]:
                 cur.close()
                 flash(
-                    f"{nombre_completo}: ya registraste tu salida hoy a las {asistencia['hora_salida']}",
+                    f"{nombre_completo}: ya registraste tu salida hoy a las {_formatear_hora(asistencia['hora_salida'])}",
                     "warning",
                 )
                 return redirect(url_for("marcador.marcar"))
@@ -138,7 +154,7 @@ def marcar():
             )
             mysql.connection.commit()
             cur.close()
-            flash(f"Salida registrada — {nombre_completo} a las {hora_actual}", "success")
+            flash(f"Salida registrada — {nombre_completo} a las {_formatear_hora(hora_actual)}", "success")
             return redirect(url_for("marcador.marcar"))
 
         cur.close()

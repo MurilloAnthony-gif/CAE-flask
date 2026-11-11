@@ -13,9 +13,8 @@ class Config:
     # --- Conexión a MySQL ---
     MYSQL_HOST = os.environ.get("MYSQL_HOST", "localhost")
     MYSQL_PORT = int(os.environ.get("MYSQL_PORT", 3306))
-    MYSQL_USER = os.environ.get("MYSQL_USER", "Murillo")
-    MYSQL_PASSWORD = os.environ.get("MYSQL_PASSWORD", "")  
+    MYSQL_USER = os.environ.get("MYSQL_USER", "root")
+    MYSQL_PASSWORD = os.environ.get("MYSQL_PASSWORD", "1234")  
     MYSQL_DB = os.environ.get("MYSQL_DB", "cae_db")
     MYSQL_CHARSET = "utf8mb4"
-    # Los resultados llegan como diccionarios: fila["nombre"] en vez de fila[1]
     MYSQL_CURSORCLASS = "DictCursor"

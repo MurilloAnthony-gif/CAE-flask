@@ -1,0 +1,6 @@
+body { background: #f3f5f9; }
+.navbar-brand { font-weight: 700; letter-spacing: .05em; }
+.navbar-logo { height: 34px; width: auto; object-fit: contain; background: #fff; padding: 2px; }
+.form-card { max-width: 720px; }
+.card { border: 0; border-radius: .6rem; }
+.table thead th { font-size: .78rem; text-transform: uppercase; color: #64748b; }

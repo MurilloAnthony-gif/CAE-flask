@@ -1,108 +1,66 @@
-{% extends "layout.html" %}
-{% block titulo %}Reportes de Asistencia - CAE{% endblock %}
-{% block contenido %}
-<h2>Reportes de Asistencia, Atrasos y Faltas</h2>
+{% extends 'layout.html' %}
+{% from '_macros.html' import badge_estado, badge_metodo %}
+{% block title %}Reportes{% endblock %}
+{% block content %}
+<h1 class="h3 mb-3">Reportes de asistencia</h1>
 
-<!-- Filtros GET /reportes: fecha_inicio, fecha_fin, empleado_id, departamento_id, solo_atrasos -->
-<form method="GET" action="{{ url_for('reportes.index') }}">
-    <p>
-        Desde: <input type="date" name="fecha_inicio" value="{{ filtros.fecha_inicio }}">
-        Hasta: <input type="date" name="fecha_fin" value="{{ filtros.fecha_fin }}">
-        Departamento:
-        <select name="departamento_id">
-            <option value="">-- Todos --</option>
-            {% for d in departamentos %}
-                <option value="{{ d.id }}" {% if filtros.departamento_id == (d.id|string) %}selected{% endif %}>{{ d.nombre }}</option>
-            {% endfor %}
-        </select>
-        Empleado:
-        <select name="empleado_id">
-            <option value="">-- Todos --</option>
-            {% for e in empleados %}
-                <option value="{{ e.id }}" {% if filtros.empleado_id == (e.id|string) %}selected{% endif %}>{{ e.apellidos }} {{ e.nombres }}</option>
-            {% endfor %}
-        </select>
-        <label>
-            <input type="checkbox" name="solo_atrasos" value="1" {% if filtros.solo_atrasos %}checked{% endif %}>
-            Solo atrasos
-        </label>
-        <button type="submit">Filtrar</button>
-    </p>
+<form method="GET" action="{{ url_for('reportes.index') }}" class="card card-body shadow-sm mb-4">
+  <div class="row g-3 align-items-end">
+    <div class="col-md-2"><label class="form-label">Desde</label>
+      <input type="date" name="desde" class="form-control" value="{{ filtros.desde }}"></div>
+    <div class="col-md-2"><label class="form-label">Hasta</label>
+      <input type="date" name="hasta" class="form-control" value="{{ filtros.hasta }}"></div>
+    <div class="col-md-3"><label class="form-label">Empleado</label>
+      <select name="empleado_id" class="form-select">
+        <option value="">Todos</option>
+        {% for e in empleados %}<option value="{{ e.id }}" {{ 'selected' if filtros.empleado_id|string == e.id|string }}>{{ e.nombres }} {{ e.apellidos }}</option>{% endfor %}
+      </select></div>
+    <div class="col-md-3"><label class="form-label">Departamento</label>
+      <select name="departamento_id" class="form-select">
+        <option value="">Todos</option>
+        {% for d in departamentos %}<option value="{{ d.id }}" {{ 'selected' if filtros.departamento_id|string == d.id|string }}>{{ d.nombre }}</option>{% endfor %}
+      </select></div>
+    <div class="col-md-2 d-grid"><button class="btn btn-primary">Filtrar</button></div>
+  </div>
 </form>
 
-<h3>Resumen del período</h3>
-<!-- Variable enviada: resumen -->
-<ul>
-    <li>Total asistencias registradas: <b>{{ resumen.total_registros }}</b></li>
-    <li>Total atrasos: <b>{{ resumen.total_atrasos }}</b> ({{ resumen.total_minutos_atraso }} minutos acumulados)</li>
-    <li>Ajustes manuales de admin: <b>{{ resumen.total_ajustes }}</b></li>
-    <li>Faltas detectadas (días laborables sin marca): <b>{{ resumen.total_faltas }}</b></li>
-</ul>
+<div class="row g-3 mb-4">
+  <div class="col-md-3"><div class="card text-center shadow-sm"><div class="card-body">
+    <div class="h2 text-primary">{{ registros|length }}</div>Registros</div></div></div>
+  <div class="col-md-3"><div class="card text-center shadow-sm"><div class="card-body">
+    <div class="h2 text-danger">{{ registros|selectattr('estado', 'equalto', 'ATRASO')|list|length }}</div>Atrasos</div></div></div>
+  <div class="col-md-3"><div class="card text-center shadow-sm"><div class="card-body">
+    <div class="h2 text-warning">{{ total_atraso_min }}</div>Minutos de atraso</div></div></div>
+  <div class="col-md-3"><div class="card text-center shadow-sm"><div class="card-body">
+    <div class="h2 text-secondary">{{ faltas|length }}</div>Faltas</div></div></div>
+</div>
 
-<h3>Detalle de Asistencias</h3>
-<table border="1" cellpadding="5">
-    <thead>
-        <tr>
-            <th>Fecha</th>
-            <th>Cédula</th>
-            <th>Empleado</th>
-            <th>Departamento</th>
-            <th>Cargo</th>
-            <th>Entrada</th>
-            <th>Salida</th>
-            <th>Estado</th>
-            <th>Min. Atraso</th>
-            <th>Método</th>
-            <th>Observación</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for r in registros %}
-        <tr>
-            <td>{{ r.fecha }}</td>
-            <td>{{ r.cedula }}</td>
-            <td>{{ r.apellidos }} {{ r.nombres }}</td>
-            <td>{{ r.departamento_nombre }}</td>
-            <td>{{ r.cargo_nombre }}</td>
-            <td>{{ r.hora_entrada or '-' }}</td>
-            <td>{{ r.hora_salida or '-' }}</td>
-            <td>{{ r.estado }}</td>
-            <td>{{ r.minutos_atraso }}</td>
-            <td>{{ r.metodo }}</td>
-            <td>
-                {{ r.observacion or '' }}
-                {% if r.admin_nombre %}<small>(por {{ r.admin_nombre }})</small>{% endif %}
-            </td>
-        </tr>
-        {% else %}
-        <tr><td colspan="11">No hay registros en este rango.</td></tr>
-        {% endfor %}
-    </tbody>
-</table>
+<h2 class="h5">Asistencias</h2>
+<div class="table-responsive mb-4"><table class="table table-hover align-middle bg-white shadow-sm">
+  <thead class="table-light"><tr><th>Fecha</th><th>Empleado</th><th>Departamento</th><th>Entrada</th><th>Salida</th><th>Atraso</th><th>Estado</th><th>Método</th></tr></thead>
+  <tbody>
+  {% for r in registros %}
+    <tr>
+      <td>{{ r.fecha }}</td><td>{{ r.empleado }}</td><td>{{ r.departamento }}</td>
+      <td>{{ r.hora_entrada or '—' }}</td><td>{{ r.hora_salida or '—' }}</td>
+      <td>{{ r.minutos_atraso }} min</td>
+      <td>{{ badge_estado(r.estado) }}</td><td>{{ badge_metodo(r.metodo) }}</td>
+    </tr>
+  {% else %}
+    <tr><td colspan="8" class="text-center text-muted py-4">Sin resultados</td></tr>
+  {% endfor %}
+  </tbody>
+</table></div>
 
-<h3>Faltas detectadas en el rango</h3>
-<table border="1" cellpadding="5">
-    <thead>
-        <tr>
-            <th>Fecha</th>
-            <th>Cédula</th>
-            <th>Empleado</th>
-            <th>Departamento</th>
-            <th>Horario asignado</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for f in faltas %}
-        <tr>
-            <td>{{ f.fecha }}</td>
-            <td>{{ f.cedula }}</td>
-            <td>{{ f.empleado }}</td>
-            <td>{{ f.departamento }}</td>
-            <td>{{ f.horario }}</td>
-        </tr>
-        {% else %}
-        <tr><td colspan="5">No se detectaron faltas en el período seleccionado.</td></tr>
-        {% endfor %}
-    </tbody>
-</table>
+<h2 class="h5">Faltas <small class="text-muted">(día laborable sin registro)</small></h2>
+<div class="table-responsive"><table class="table align-middle bg-white shadow-sm">
+  <thead class="table-light"><tr><th>Fecha</th><th>Empleado</th><th>Departamento</th></tr></thead>
+  <tbody>
+  {% for f in faltas %}
+    <tr><td>{{ f.fecha }}</td><td>{{ f.empleado }}</td><td>{{ f.departamento }}</td></tr>
+  {% else %}
+    <tr><td colspan="3" class="text-center text-muted py-4">Sin faltas en el rango</td></tr>
+  {% endfor %}
+  </tbody>
+</table></div>
 {% endblock %}

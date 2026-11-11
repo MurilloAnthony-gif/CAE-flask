@@ -1,0 +1,27 @@
+{% extends 'layout.html' %}
+{% block title %}{{ 'Editar' if cargo else 'Nuevo' }} cargo{% endblock %}
+{% block content %}
+<h1 class="h3 mb-3">{{ 'Editar' if cargo else 'Nuevo' }} cargo</h1>
+<div class="card shadow-sm form-card"><div class="card-body">
+  <form method="POST" action="{{ url_for('cargos.editar', id=cargo.id) if cargo else url_for('cargos.nuevo') }}">
+    <div class="mb-3">
+      <label class="form-label">Nombre</label>
+      <input type="text" name="nombre" class="form-control" maxlength="100" required value="{{ cargo.nombre if cargo else '' }}">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Descripción</label>
+      <input type="text" name="descripcion" class="form-control" maxlength="255" value="{{ cargo.descripcion or '' if cargo else '' }}">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Salario base (USD)</label>
+      <input type="number" name="salario_base" class="form-control" min="0" step="0.01" required value="{{ cargo.salario_base if cargo else '' }}">
+    </div>
+    <div class="form-check mb-3">
+      <input class="form-check-input" type="checkbox" name="activo" id="activo" value="1" {{ 'checked' if (not cargo or cargo.activo) }}>
+      <label class="form-check-label" for="activo">Activo</label>
+    </div>
+    <button class="btn btn-primary">Guardar</button>
+    <a href="{{ url_for('cargos.index') }}" class="btn btn-outline-secondary">Cancelar</a>
+  </form>
+</div></div>
+{% endblock %}

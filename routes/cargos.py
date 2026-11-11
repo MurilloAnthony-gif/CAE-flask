@@ -17,36 +17,40 @@ def index():
     return render_template("cargos/index.html", cargos=cargos)
 
 
-@cargos_bp.route("/crear", methods=["POST"])
+@cargos_bp.route("/nuevo", methods=["GET", "POST"])
 @login_required
-def crear():
-    nombre = request.form.get("nombre", "").strip()
-    descripcion = request.form.get("descripcion", "").strip() or None
-    salario_base = request.form.get("salario_base", "0").strip()
+def nuevo():
+    if request.method == "POST":
+        nombre = request.form.get("nombre", "").strip()
+        descripcion = request.form.get("descripcion", "").strip() or None
+        salario_base = request.form.get("salario_base", "0").strip()
+        activo = 1 if request.form.get("activo") else 0
 
-    if not nombre:
-        flash("El nombre del cargo es obligatorio", "danger")
-        return redirect(url_for("cargos.index"))
+        if not nombre:
+            flash("El nombre del cargo es obligatorio", "danger")
+            return render_template("cargos/form.html", cargo=None)
 
-    try:
-        salario_val = float(salario_base) if salario_base else 0.0
-    except ValueError:
-        flash("El salario base debe ser un número válido", "danger")
-        return redirect(url_for("cargos.index"))
+        try:
+            salario_val = float(salario_base) if salario_base else 0.0
+        except ValueError:
+            flash("El salario base debe ser un número válido", "danger")
+            return render_template("cargos/form.html", cargo=None)
 
-    try:
-        cur = mysql.connection.cursor()
-        cur.execute(
-            "INSERT INTO cargos (nombre, descripcion, salario_base) VALUES (%s, %s, %s)",
-            (nombre, descripcion, salario_val),
-        )
-        mysql.connection.commit()
-        cur.close()
-        flash("Cargo creado correctamente", "success")
-    except MySQLdb.IntegrityError:
-        flash("Ya existe un cargo con ese nombre", "danger")
+        try:
+            cur = mysql.connection.cursor()
+            cur.execute(
+                "INSERT INTO cargos (nombre, descripcion, salario_base, activo) VALUES (%s, %s, %s, %s)",
+                (nombre, descripcion, salario_val, activo),
+            )
+            mysql.connection.commit()
+            cur.close()
+            flash("Cargo creado correctamente", "success")
+            return redirect(url_for("cargos.index"))
+        except MySQLdb.IntegrityError:
+            flash("Ya existe un cargo con ese nombre", "danger")
+            return render_template("cargos/form.html", cargo=None)
 
-    return redirect(url_for("cargos.index"))
+    return render_template("cargos/form.html", cargo=None)
 
 
 @cargos_bp.route("/editar/<int:id>", methods=["GET", "POST"])
@@ -58,19 +62,23 @@ def editar(id):
         nombre = request.form.get("nombre", "").strip()
         descripcion = request.form.get("descripcion", "").strip() or None
         salario_base = request.form.get("salario_base", "0").strip()
-        activo = 1 if request.form.get("activo") == "1" else 0
+        activo = 1 if request.form.get("activo") else 0
 
         if not nombre:
             flash("El nombre del cargo es obligatorio", "danger")
+            cur.execute("SELECT * FROM cargos WHERE id = %s", (id,))
+            cargo = cur.fetchone()
             cur.close()
-            return redirect(url_for("cargos.editar", id=id))
+            return render_template("cargos/form.html", cargo=cargo)
 
         try:
             salario_val = float(salario_base) if salario_base else 0.0
         except ValueError:
             flash("El salario base debe ser un número válido", "danger")
+            cur.execute("SELECT * FROM cargos WHERE id = %s", (id,))
+            cargo = cur.fetchone()
             cur.close()
-            return redirect(url_for("cargos.editar", id=id))
+            return render_template("cargos/form.html", cargo=cargo)
 
         try:
             cur.execute(
@@ -92,7 +100,7 @@ def editar(id):
         flash("Cargo no encontrado", "warning")
         return redirect(url_for("cargos.index"))
 
-    return render_template("cargos/editar.html", cargo=cargo)
+    return render_template("cargos/form.html", cargo=cargo)
 
 
 @cargos_bp.route("/eliminar/<int:id>", methods=["POST"])

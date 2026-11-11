@@ -1,0 +1,36 @@
+{% extends 'layout.html' %}
+{% block title %}Ajustar asistencia{% endblock %}
+{% block content %}
+<h1 class="h3 mb-3">{{ 'Ajustar registro' if asistencia else 'Nuevo ajuste de asistencia' }}</h1>
+<div class="card shadow-sm form-card"><div class="card-body">
+  <form method="POST" action="{{ url_for('asistencias.ajustar', id=asistencia.id) if asistencia else url_for('asistencias.ajustar') }}">
+    <div class="mb-3">
+      <label class="form-label">Empleado</label>
+      <select name="empleado_id" class="form-select" required {{ 'disabled' if asistencia }}>
+        <option value="">Seleccione...</option>
+        {% for e in empleados %}<option value="{{ e.id }}" {{ 'selected' if asistencia and asistencia.empleado_id == e.id }}>{{ e.nombres }} {{ e.apellidos }} ({{ e.cedula }})</option>{% endfor %}
+      </select>
+    </div>
+    <div class="row">
+      <div class="col-md-4 mb-3">
+        <label class="form-label">Fecha</label>
+        <input type="date" name="fecha" class="form-control" required {{ 'readonly' if asistencia }} value="{{ asistencia.fecha if asistencia else '' }}">
+      </div>
+      <div class="col-md-4 mb-3">
+        <label class="form-label">Hora de entrada</label>
+        <input type="time" name="hora_entrada" class="form-control" value="{{ asistencia.hora_entrada or '' if asistencia else '' }}">
+      </div>
+      <div class="col-md-4 mb-3">
+        <label class="form-label">Hora de salida</label>
+        <input type="time" name="hora_salida" class="form-control" value="{{ asistencia.hora_salida or '' if asistencia else '' }}">
+      </div>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Motivo del ajuste <span class="text-danger">*</span></label>
+      <textarea name="observacion" class="form-control" rows="3" maxlength="255" required placeholder="Ej.: Olvidó marcar la salida / corte de luz"></textarea>
+    </div>
+    <button class="btn btn-primary">Guardar ajuste</button>
+    <a href="{{ url_for('asistencias.index') }}" class="btn btn-outline-secondary">Cancelar</a>
+  </form>
+</div></div>
+{% endblock %}

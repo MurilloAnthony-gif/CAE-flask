@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Control de Asistencia</title>
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<div id="login-view" class="login-wrap hidden">
+  <form id="login-form" class="card login-card">
+    <h1>Control de Asistencia</h1>
+    <p class="muted">Inicia sesión como administrador</p>
+    <label>Usuario<input name="usuario" required autofocus></label>
+    <label>Contraseña<input name="password" type="password" required></label>
+    <p id="login-error" class="error"></p>
+    <button class="btn primary" type="submit">Ingresar</button>
+    <p class="muted small">Demo: admin / admin123</p>
+  </form>
+</div>
+
+<div id="app-view" class="app hidden">
+  <aside class="sidebar">
+    <h2>Asistencia</h2>
+    <nav id="nav">
+      <a href="#dashboard">Inicio</a>
+      <a href="#empleados">Empleados</a>
+      <a href="#departamentos">Departamentos</a>
+      <a href="#cargos">Cargos</a>
+      <a href="#horarios">Horarios</a>
+      <a href="#asistencias">Marcar asistencia</a>
+      <a href="#reportes">Reportes</a>
+    </nav>
+    <button id="logout" class="btn">Cerrar sesión</button>
+  </aside>
+  <main id="main"></main>
+</div>
+
+<div id="modal" class="modal hidden"><div class="card modal-body" id="modal-body"></div></div>
+<script src="js/store.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

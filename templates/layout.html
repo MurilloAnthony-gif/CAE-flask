@@ -1,37 +1,54 @@
-<!-- Plantilla base TEMPORAL (sin estilos). El frontend la reemplaza. -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>{% block titulo %}CAE{% endblock %}</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}CAE{% endblock %} - Control de Asistencia</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <nav>
-        <b>CAE</b> |
-        <a href="{{ url_for('marcador.marcar') }}">Reloj Marcador (PIN)</a>
-        {% if session.usuario_id %}
-        | <a href="{{ url_for('main.dashboard') }}">Dashboard</a>
-        | <a href="{{ url_for('empleados.index') }}">Empleados</a>
-        | <a href="{{ url_for('departamentos.index') }}">Departamentos</a>
-        | <a href="{{ url_for('cargos.index') }}">Cargos</a>
-        | <a href="{{ url_for('horarios.index') }}">Horarios</a>
-        | <a href="{{ url_for('asistencias.index') }}">Asistencias / Ajustes</a>
-        | <a href="{{ url_for('reportes.index') }}">Reportes</a>
-        | {{ session.usuario_nombre }} ({{ session.usuario_rol }})
-        | <a href="{{ url_for('auth.logout') }}">Cerrar sesión</a>
-        {% else %}
-        | <a href="{{ url_for('auth.login') }}">Login Admin</a>
-        {% endif %}
-    </nav>
-    <hr>
+{% if not hide_navbar %}
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container">
+    <a class="navbar-brand d-flex align-items-center gap-2" href="{{ url_for('dashboard.index') if session.get('user_id') else url_for('marcador.marcar') }}">
+      <img src="{{ url_for('static', filename='img/logo.png') }}?v=2" alt="Logo CAE" class="navbar-logo rounded">
+      <span>CAE</span>
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menu">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="menu">
+      {% if session.get('user_id') %}
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('dashboard.index') }}">Inicio</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('empleados.index') }}">Empleados</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('departamentos.index') }}">Departamentos</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('cargos.index') }}">Cargos</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('horarios.index') }}">Horarios</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('asistencias.index') }}">Ajustes</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('reportes.index') }}">Reportes</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('marcador.marcar') }}">Marcador</a></li>
+      </ul>
+      <span class="navbar-text me-3">{{ session.get('nombre') }}</span>
+      <a class="btn btn-outline-light btn-sm" href="{{ url_for('auth.logout') }}">Cerrar sesión</a>
+      {% endif %}
+    </div>
+  </div>
+</nav>
+{% endif %}
 
-    {# Mensajes flash: categoría = success | danger | warning | info #}
-    {% with mensajes = get_flashed_messages(with_categories=true) %}
-        {% for categoria, mensaje in mensajes %}
-            <p><b>[{{ categoria|upper }}]</b> {{ mensaje }}</p>
-        {% endfor %}
-    {% endwith %}
-
-    {% block contenido %}{% endblock %}
+<main class="container my-4">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+      <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    {% endfor %}
+  {% endwith %}
+  {% block content %}{% endblock %}
+</main>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

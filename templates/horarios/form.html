@@ -1,0 +1,39 @@
+{% extends 'layout.html' %}
+{% block title %}{{ 'Editar' if horario else 'Nuevo' }} horario{% endblock %}
+{% block content %}
+{% set dias_sel = (horario.dias_laborables.split(',') if horario else ['L','M','X','J','V']) %}
+<h1 class="h3 mb-3">{{ 'Editar' if horario else 'Nuevo' }} horario</h1>
+<div class="card shadow-sm form-card"><div class="card-body">
+  <form method="POST" action="{{ url_for('horarios.editar', id=horario.id) if horario else url_for('horarios.nuevo') }}">
+    <div class="mb-3">
+      <label class="form-label">Nombre</label>
+      <input type="text" name="nombre" class="form-control" maxlength="100" required value="{{ horario.nombre if horario else '' }}">
+    </div>
+    <div class="row">
+      <div class="col-md-4 mb-3">
+        <label class="form-label">Hora de entrada</label>
+        <input type="time" name="hora_entrada" class="form-control" required value="{{ horario.hora_entrada if horario else '08:00' }}">
+      </div>
+      <div class="col-md-4 mb-3">
+        <label class="form-label">Hora de salida</label>
+        <input type="time" name="hora_salida" class="form-control" required value="{{ horario.hora_salida if horario else '16:00' }}">
+      </div>
+      <div class="col-md-4 mb-3">
+        <label class="form-label">Tolerancia (min)</label>
+        <input type="number" name="tolerancia_min" class="form-control" min="0" max="120" required value="{{ horario.tolerancia_min if horario else 10 }}">
+      </div>
+    </div>
+    <div class="mb-3">
+      <label class="form-label d-block">Días laborables</label>
+      {% for code, label in [('L','Lun'),('M','Mar'),('X','Mié'),('J','Jue'),('V','Vie'),('S','Sáb'),('D','Dom')] %}
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="checkbox" name="dias" id="dia{{ code }}" value="{{ code }}" {{ 'checked' if code in dias_sel }}>
+        <label class="form-check-label" for="dia{{ code }}">{{ label }}</label>
+      </div>
+      {% endfor %}
+    </div>
+    <button class="btn btn-primary">Guardar</button>
+    <a href="{{ url_for('horarios.index') }}" class="btn btn-outline-secondary">Cancelar</a>
+  </form>
+</div></div>
+{% endblock %}

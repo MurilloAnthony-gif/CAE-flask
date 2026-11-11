@@ -17,29 +17,33 @@ def index():
     return render_template("departamentos/index.html", departamentos=departamentos)
 
 
-@departamentos_bp.route("/crear", methods=["POST"])
+@departamentos_bp.route("/nuevo", methods=["GET", "POST"])
 @login_required
-def crear():
-    nombre = request.form.get("nombre", "").strip()
-    descripcion = request.form.get("descripcion", "").strip() or None
+def nuevo():
+    if request.method == "POST":
+        nombre = request.form.get("nombre", "").strip()
+        descripcion = request.form.get("descripcion", "").strip() or None
+        activo = 1 if request.form.get("activo") else 0
 
-    if not nombre:
-        flash("El nombre del departamento es obligatorio", "danger")
-        return redirect(url_for("departamentos.index"))
+        if not nombre:
+            flash("El nombre del departamento es obligatorio", "danger")
+            return render_template("departamentos/form.html", dep=None)
 
-    try:
-        cur = mysql.connection.cursor()
-        cur.execute(
-            "INSERT INTO departamentos (nombre, descripcion) VALUES (%s, %s)",
-            (nombre, descripcion),
-        )
-        mysql.connection.commit()
-        cur.close()
-        flash("Departamento creado correctamente", "success")
-    except MySQLdb.IntegrityError:
-        flash("Ya existe un departamento con ese nombre", "danger")
+        try:
+            cur = mysql.connection.cursor()
+            cur.execute(
+                "INSERT INTO departamentos (nombre, descripcion, activo) VALUES (%s, %s, %s)",
+                (nombre, descripcion, activo),
+            )
+            mysql.connection.commit()
+            cur.close()
+            flash("Departamento creado correctamente", "success")
+            return redirect(url_for("departamentos.index"))
+        except MySQLdb.IntegrityError:
+            flash("Ya existe un departamento con ese nombre", "danger")
+            return render_template("departamentos/form.html", dep=None)
 
-    return redirect(url_for("departamentos.index"))
+    return render_template("departamentos/form.html", dep=None)
 
 
 @departamentos_bp.route("/editar/<int:id>", methods=["GET", "POST"])
@@ -50,12 +54,14 @@ def editar(id):
     if request.method == "POST":
         nombre = request.form.get("nombre", "").strip()
         descripcion = request.form.get("descripcion", "").strip() or None
-        activo = 1 if request.form.get("activo") == "1" else 0
+        activo = 1 if request.form.get("activo") else 0
 
         if not nombre:
             flash("El nombre del departamento es obligatorio", "danger")
+            cur.execute("SELECT * FROM departamentos WHERE id = %s", (id,))
+            dep = cur.fetchone()
             cur.close()
-            return redirect(url_for("departamentos.editar", id=id))
+            return render_template("departamentos/form.html", dep=dep)
 
         try:
             cur.execute(
@@ -69,16 +75,15 @@ def editar(id):
         except MySQLdb.IntegrityError:
             flash("Ya existe otro departamento con ese nombre", "danger")
 
-    # Nota: (id,) con coma para que sea tupla (corrige el error del video guía)
     cur.execute("SELECT * FROM departamentos WHERE id = %s", (id,))
-    departamento = cur.fetchone()
+    dep = cur.fetchone()
     cur.close()
 
-    if not departamento:
+    if not dep:
         flash("Departamento no encontrado", "warning")
         return redirect(url_for("departamentos.index"))
 
-    return render_template("departamentos/editar.html", departamento=departamento)
+    return render_template("departamentos/form.html", dep=dep)
 
 
 @departamentos_bp.route("/eliminar/<int:id>", methods=["POST"])

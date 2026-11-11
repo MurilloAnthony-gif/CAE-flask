@@ -4,17 +4,17 @@ from flask import Blueprint, abort, current_app, jsonify, redirect, render_templ
 from db import mysql
 from routes.auth import login_required
 
-main_bp = Blueprint("main", __name__)
+dashboard_bp = Blueprint("dashboard", __name__)
 
 
-@main_bp.route("/")
-def index():
-    return redirect(url_for("main.dashboard"))
+@dashboard_bp.route("/")
+def raiz():
+    return redirect(url_for("dashboard.index"))
 
 
-@main_bp.route("/dashboard")
+@dashboard_bp.route("/dashboard")
 @login_required
-def dashboard():
+def index():
     cur = mysql.connection.cursor()
     cur.execute("SELECT COUNT(*) AS total FROM empleados WHERE activo = 1")
     total_empleados = cur.fetchone()["total"]
@@ -34,7 +34,11 @@ def dashboard():
     )
 
 
-@main_bp.route("/estado-db")
+dashboard = index
+main_bp = dashboard_bp
+
+
+@dashboard_bp.route("/estado-db")
 def estado_db():
     """Prueba rápida de la conexión (solo disponible en modo debug)."""
     if not current_app.debug:

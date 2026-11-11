@@ -1,11 +1,22 @@
-{% extends "layout.html" %}
-{% block titulo %}Dashboard - CAE{% endblock %}
-{% block contenido %}
-<h2>Dashboard</h2>
-<!-- Variables que envía el backend: total_empleados, asistencias_hoy, atrasos_hoy -->
-<ul>
-    <li>Empleados activos: {{ total_empleados }}</li>
-    <li>Asistencias de hoy: {{ asistencias_hoy }}</li>
-    <li>Atrasos de hoy: {{ atrasos_hoy }}</li>
-</ul>
+{% extends 'layout.html' %}
+{% block title %}Inicio{% endblock %}
+{% block content %}
+<h1 class="h3 mb-4">Bienvenido, {{ session.get('nombre') }}</h1>
+<div class="row g-3">
+  <div class="col-md-4">
+    <div class="card text-center shadow-sm"><div class="card-body">
+      <div class="display-5 text-primary">{{ total_empleados }}</div>Empleados activos
+    </div></div>
+  </div>
+  <div class="col-md-4">
+    <div class="card text-center shadow-sm"><div class="card-body">
+      <div class="display-5 text-success">{{ asistencias_hoy }}</div>Asistencias de hoy
+    </div></div>
+  </div>
+  <div class="col-md-4">
+    <div class="card text-center shadow-sm"><div class="card-body">
+      <div class="display-5 text-danger">{{ atrasos_hoy }}</div>Atrasos de hoy
+    </div></div>
+  </div>
+</div>
 {% endblock %}

@@ -1,73 +1,27 @@
-{% extends "layout.html" %}
-{% block titulo %}Asistencias y Ajustes - CAE{% endblock %}
-{% block contenido %}
-<h2>Asistencias y Ajustes Administrativos</h2>
-
-<h3>Registrar / corregir asistencia manualmente (Ajuste)</h3>
-<p><i>Uso exclusivo para correcciones justificadas. Queda registrado con método AJUSTE y el usuario administrador que lo realizó.</i></p>
-<!-- Campos esperados por POST /asistencias/ajuste:
-     empleado_id, fecha, hora_entrada, hora_salida (opcional), observacion (obligatoria) -->
-<form method="POST" action="{{ url_for('asistencias.crear_ajuste') }}">
-    <p>Empleado:
-        <select name="empleado_id" required>
-            <option value="">-- Seleccione --</option>
-            {% for e in empleados %}
-                <option value="{{ e.id }}">{{ e.apellidos }} {{ e.nombres }} ({{ e.cedula }})</option>
-            {% endfor %}
-        </select>
-    </p>
-    <p>Fecha: <input type="date" name="fecha" required></p>
-    <p>Hora de entrada: <input type="time" name="hora_entrada" required></p>
-    <p>Hora de salida (opcional): <input type="time" name="hora_salida"></p>
-    <p>Motivo / Observación (obligatorio):
-        <input type="text" name="observacion" size="50" placeholder="Ej. Olvidó marcar / corte de energía" required>
-    </p>
-    <button type="submit">Guardar ajuste</button>
-</form>
-
-<h3>Últimos registros de asistencia</h3>
-<!-- Variable enviada: asistencias -->
-<table border="1" cellpadding="5">
-    <thead>
-        <tr>
-            <th>Fecha</th>
-            <th>Cédula</th>
-            <th>Empleado</th>
-            <th>Departamento</th>
-            <th>Entrada</th>
-            <th>Salida</th>
-            <th>Estado</th>
-            <th>Atraso (min)</th>
-            <th>Método</th>
-            <th>Observación / Admin</th>
-            <th>Acciones</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for a in asistencias %}
-        <tr>
-            <td>{{ a.fecha }}</td>
-            <td>{{ a.cedula }}</td>
-            <td>{{ a.apellidos }} {{ a.nombres }}</td>
-            <td>{{ a.departamento_nombre }}</td>
-            <td>{{ a.hora_entrada or '-' }}</td>
-            <td>{{ a.hora_salida or '-' }}</td>
-            <td>{{ a.estado or '-' }}</td>
-            <td>{{ a.minutos_atraso }}</td>
-            <td>{{ a.metodo }}</td>
-            <td>
-                {{ a.observacion or '' }}
-                {% if a.admin_nombre %}<small>(por {{ a.admin_nombre }})</small>{% endif %}
-            </td>
-            <td>
-                <form method="POST" action="{{ url_for('asistencias.eliminar', id=a.id) }}" style="display:inline;">
-                    <button type="submit" onclick="return confirm('¿Eliminar registro?');">Eliminar</button>
-                </form>
-            </td>
-        </tr>
-        {% else %}
-        <tr><td colspan="11">No hay asistencias registradas.</td></tr>
-        {% endfor %}
-    </tbody>
-</table>
+{% extends 'layout.html' %}
+{% from '_macros.html' import badge_estado, badge_metodo %}
+{% block title %}Ajustes de asistencia{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h3 mb-0">Ajustes de asistencia</h1>
+  <a href="{{ url_for('asistencias.ajustar') }}" class="btn btn-primary">+ Nuevo ajuste</a>
+</div>
+<div class="alert alert-info small">Los ajustes son solo para correcciones (olvido de marcar, corte de luz, etc.). El motivo es obligatorio y queda registrado el administrador que lo hizo.</div>
+<div class="table-responsive"><table class="table table-hover align-middle bg-white shadow-sm">
+  <thead class="table-light"><tr><th>Fecha</th><th>Empleado</th><th>Entrada</th><th>Salida</th><th>Atraso</th><th>Estado</th><th>Método</th><th>Observación</th><th></th></tr></thead>
+  <tbody>
+  {% for a in asistencias %}
+    <tr>
+      <td>{{ a.fecha }}</td><td>{{ a.empleado }}</td>
+      <td>{{ a.hora_entrada or '—' }}</td><td>{{ a.hora_salida or '—' }}</td>
+      <td>{{ a.minutos_atraso }} min</td>
+      <td>{{ badge_estado(a.estado) }}</td><td>{{ badge_metodo(a.metodo) }}</td>
+      <td class="small">{{ a.observacion or '—' }}{% if a.registrado_por_nombre %}<br><span class="text-muted">por {{ a.registrado_por_nombre }}</span>{% endif %}</td>
+      <td class="text-end"><a href="{{ url_for('asistencias.ajustar', id=a.id) }}" class="btn btn-sm btn-outline-secondary">Ajustar</a></td>
+    </tr>
+  {% else %}
+    <tr><td colspan="9" class="text-center text-muted py-4">Sin registros</td></tr>
+  {% endfor %}
+  </tbody>
+</table></div>
 {% endblock %}

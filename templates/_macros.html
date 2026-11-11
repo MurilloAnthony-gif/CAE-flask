@@ -1,0 +1,19 @@
+{# Macros reutilizables #}
+{% macro badge_estado(estado) -%}
+  <span class="badge {{ 'text-bg-success' if estado == 'PUNTUAL' else 'text-bg-danger' }}">{{ estado }}</span>
+{%- endmacro %}
+
+{% macro badge_metodo(metodo) -%}
+  <span class="badge {{ {'PIN': 'text-bg-primary', 'AJUSTE': 'text-bg-warning', 'FACIAL': 'text-bg-info'}.get(metodo, 'text-bg-secondary') }}">{{ metodo }}</span>
+{%- endmacro %}
+
+{# Botón eliminar: formulario POST con confirmación #}
+{% macro boton_eliminar(url, texto='¿Eliminar este registro?') -%}
+  <form action="{{ url }}" method="POST" class="d-inline" onsubmit="return confirm('{{ texto }}');">
+    <button class="btn btn-sm btn-outline-danger">Eliminar</button>
+  </form>
+{%- endmacro %}
+
+{% macro badge_activo(activo) -%}
+  <span class="badge {{ 'text-bg-success' if activo else 'text-bg-secondary' }}">{{ 'Activo' if activo else 'Inactivo' }}</span>
+{%- endmacro %}

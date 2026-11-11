@@ -1,45 +1,25 @@
-{% extends "layout.html" %}
-{% block titulo %}Departamentos - CAE{% endblock %}
-{% block contenido %}
-<h2>Departamentos</h2>
-
-<h3>Nuevo departamento</h3>
-<!-- Campos esperados por POST /departamentos/crear: nombre, descripcion -->
-<form method="POST" action="{{ url_for('departamentos.crear') }}">
-    <p>Nombre: <input type="text" name="nombre" required></p>
-    <p>Descripción: <input type="text" name="descripcion"></p>
-    <button type="submit">Guardar</button>
-</form>
-
-<h3>Listado</h3>
-<!-- Variable enviada: departamentos (lista de dicts: id, nombre, descripcion, activo) -->
-<table border="1" cellpadding="5">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Nombre</th>
-            <th>Descripción</th>
-            <th>Estado</th>
-            <th>Acciones</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for d in departamentos %}
-        <tr>
-            <td>{{ d.id }}</td>
-            <td>{{ d.nombre }}</td>
-            <td>{{ d.descripcion or '' }}</td>
-            <td>{{ 'Activo' if d.activo else 'Inactivo' }}</td>
-            <td>
-                <a href="{{ url_for('departamentos.editar', id=d.id) }}">Editar</a>
-                <form method="POST" action="{{ url_for('departamentos.eliminar', id=d.id) }}" style="display:inline;">
-                    <button type="submit" onclick="return confirm('¿Eliminar departamento?');">Eliminar</button>
-                </form>
-            </td>
-        </tr>
-        {% else %}
-        <tr><td colspan="5">No hay departamentos registrados.</td></tr>
-        {% endfor %}
-    </tbody>
-</table>
+{% extends 'layout.html' %}
+{% from '_macros.html' import badge_activo, boton_eliminar %}
+{% block title %}Departamentos{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h3 mb-0">Departamentos</h1>
+  <a href="{{ url_for('departamentos.nuevo') }}" class="btn btn-primary">+ Nuevo departamento</a>
+</div>
+<div class="table-responsive"><table class="table table-hover align-middle bg-white shadow-sm">
+  <thead class="table-light"><tr><th>Nombre</th><th>Descripción</th><th>Estado</th><th class="text-end">Acciones</th></tr></thead>
+  <tbody>
+  {% for d in departamentos %}
+    <tr>
+      <td>{{ d.nombre }}</td><td>{{ d.descripcion or '—' }}</td><td>{{ badge_activo(d.activo) }}</td>
+      <td class="text-end">
+        <a href="{{ url_for('departamentos.editar', id=d.id) }}" class="btn btn-sm btn-outline-secondary">Editar</a>
+        {{ boton_eliminar(url_for('departamentos.eliminar', id=d.id)) }}
+      </td>
+    </tr>
+  {% else %}
+    <tr><td colspan="4" class="text-center text-muted py-4">Sin departamentos</td></tr>
+  {% endfor %}
+  </tbody>
+</table></div>
 {% endblock %}
