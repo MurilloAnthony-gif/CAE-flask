@@ -4,7 +4,7 @@ Python + Flask + MySQL.
 
 ## Cómo ejecutarlo
 
-1. **Base de datos:** abre `database/cae_db.sql` en MySQL Workbench y ejecútalo completo (⚡).
+1. **Base de datos:** abre `database/cae_db.sql` en MySQL Workbench y ejecútalo completo .
 2. **Contraseña de MySQL:** ponla en `config.py` → `MYSQL_PASSWORD`.
 3. **Entorno virtual e instalación** (en la carpeta del proyecto):
    ```bash
